@@ -3,7 +3,11 @@
 import os
 from typing import Any, Dict, Optional
 
+from dotenv import load_dotenv
 from mcp_base import BaseMCPServer, BearerTokenAPIClient, paginated_endpoint, build_api_params
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class {{SERVER_CLASS_NAME}}(BaseMCPServer):
@@ -13,19 +17,21 @@ class {{SERVER_CLASS_NAME}}(BaseMCPServer):
         self,
         base_url: str = "{{API_BASE_URL}}",
         api_token: Optional[str] = None,
-        mcp_api_key: Optional[str] = None,
-        auth_required: bool = True,
     ):
         """Initialize the {{SERVICE_NAME}} MCP Server.
         
         Args:
             base_url: {{SERVICE_NAME}} API base URL
             api_token: {{SERVICE_NAME}} API token (can also be set via {{API_TOKEN_ENV_VAR}} env var)
-            mcp_api_key: API key for MCP authentication
-            auth_required: Whether MCP authentication is required
         """
         # Get API token from environment if not provided
         api_token = api_token or os.getenv("{{API_TOKEN_ENV_VAR}}")
+        
+        if not api_token:
+            raise RuntimeError(
+                "{{API_TOKEN_ENV_VAR}} environment variable is required. "
+                "Please set it in your .env file or environment."
+            )
         
         # Create API client
         api_client = BearerTokenAPIClient(
@@ -37,8 +43,6 @@ class {{SERVER_CLASS_NAME}}(BaseMCPServer):
         super().__init__(
             name="{{SERVICE_NAME}} MCP Server",
             api_client=api_client,
-            mcp_api_key=mcp_api_key,
-            auth_required=auth_required,
         )
     
     async def test_connection(self) -> bool:
@@ -89,3 +93,13 @@ class {{SERVER_CLASS_NAME}}(BaseMCPServer):
         # async def search_items(query: str) -> Dict[str, Any]:
         #     """Search for items."""
         #     return await self.api_client.get("items/search", params={"q": query})
+
+
+def main():
+    """Main entry point for the MCP server."""
+    server = {{SERVER_CLASS_NAME}}()
+    server.run()
+
+
+if __name__ == "__main__":
+    main()

@@ -16,10 +16,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["black", "isort", "pytest", "ruff", "mypy"]
+dev = ["black", "isort", "pytest", "ruff"]
 
 [project.scripts]
-{{CLI_NAME}} = "{{PACKAGE_NAME}}.cli:main"
+{{CLI_NAME}} = "{{PACKAGE_NAME}}.server:main"
 
 [project.urls]
 Homepage = "{{HOMEPAGE_URL}}"
@@ -31,5 +31,4 @@ where = ["."]
 dev = [
     "pytest>=8.4.0",
     "pyyaml>=6.0",
-    "mypy>=1.0.0",
 ]

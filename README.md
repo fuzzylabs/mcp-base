@@ -14,7 +14,7 @@ MCP Base is a comprehensive Python library that provides everything needed to bu
 - **📋 Complete Project Templates**: Full boilerplate including tests, CI/CD, documentation
 - **🔐 Multiple Authentication**: Bearer tokens, API keys, custom authentication strategies
 - **📄 Automatic Pagination**: Built-in decorators for handling paginated API responses
-- **🛠️ Development Tools**: Testing frameworks, linting, type checking, deployment workflows
+- **🛠️ Development Tools**: Testing frameworks, linting, type checking, CI/CD workflows
 - **🔄 Future-Proof Architecture**: Benefit automatically from library improvements and new features
 - **📚 Production-Ready**: Extracted from live MCP servers handling real workloads
 
@@ -60,8 +60,7 @@ class GitHubMCPServer(BaseMCPServer):
 
 # Deploy your server
 server = GitHubMCPServer(github_token="your-token")
-server.run_server()  # HTTP mode for web deployment
-# or server.run_stdio()  # stdio mode for direct AI integration
+server.run()  # MCP stdio mode for AI integration
 ```
 
 ### Project Generation Templates
@@ -234,18 +233,11 @@ mypy your_mcp/
 pytest --cov=your_mcp
 ```
 
-## Deployment Options
+## Deployment
 
-### HTTP Server Mode
+### AI Assistant Integration
 ```python
-server.run_server(host="0.0.0.0", port=8000)
-# Accessible at http://localhost:8000/health
-# MCP endpoints at http://localhost:8000/mcp/
-```
-
-### Direct AI Integration
-```python
-server.run_stdio()
+server.run()
 # Connects directly to AI assistants via stdio protocol
 ```
 
@@ -254,7 +246,7 @@ server.run_stdio()
 FROM python:3.11-slim
 COPY . .
 RUN pip install -e .
-CMD ["your-mcp-server", "http"]
+CMD ["your-mcp-server"]
 ```
 
 ## Examples and Learning

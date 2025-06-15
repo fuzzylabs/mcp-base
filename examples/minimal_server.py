@@ -10,7 +10,7 @@ from mcp_base import BaseMCPServer, BearerTokenAPIClient
 class MinimalMCPServer(BaseMCPServer):
     """A minimal MCP server example."""
     
-    def __init__(self, api_token: str, mcp_api_key: str = None):
+    def __init__(self, api_token: str):
         # Create a simple API client
         api_client = BearerTokenAPIClient(
             base_url="https://jsonplaceholder.typicode.com",
@@ -21,8 +21,6 @@ class MinimalMCPServer(BaseMCPServer):
         super().__init__(
             name="Minimal MCP Server",
             api_client=api_client,
-            mcp_api_key=mcp_api_key,
-            auth_required=False,  # Disable auth for example
         )
     
     async def test_connection(self) -> bool:
@@ -54,14 +52,11 @@ class MinimalMCPServer(BaseMCPServer):
 
 def main():
     """Run the minimal server."""
-    server = MinimalMCPServer(
-        api_token="dummy-token",  # JSONPlaceholder doesn't need real auth
-        mcp_api_key=os.getenv("MCP_API_KEY")
-    )
+    server = MinimalMCPServer(api_token="dummy-token")  # JSONPlaceholder doesn't need real auth
     
-    print("Starting Minimal MCP Server on http://localhost:8000")
-    print("Try: curl http://localhost:8000/health")
-    server.run_server()
+    print("Starting Minimal MCP Server in stdio mode")
+    print("Connect via MCP client")
+    server.run()
 
 
 if __name__ == "__main__":

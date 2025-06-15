@@ -32,7 +32,6 @@ class BearerTokenServer(BaseMCPServer):
         super().__init__(
             name="Bearer Token Server",
             api_client=api_client,
-            auth_required=False
         )
     
     def register_tools(self):
@@ -55,7 +54,6 @@ class APIKeyServer(BaseMCPServer):
         super().__init__(
             name="API Key Server",
             api_client=api_client,
-            auth_required=False
         )
     
     def register_tools(self):
@@ -77,7 +75,6 @@ class CustomAuthServer(BaseMCPServer):
         super().__init__(
             name="Custom Auth Server",
             api_client=api_client,
-            auth_required=False
         )
     
     def register_tools(self):
@@ -95,7 +92,6 @@ class NoAuthServer(BaseMCPServer):
         super().__init__(
             name="No Auth Server",
             api_client=None,
-            auth_required=False
         )
     
     def register_tools(self):

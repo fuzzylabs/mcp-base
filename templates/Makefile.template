@@ -1,26 +1,25 @@
-.PHONY: install test lint format clean dev-install run-http run-stdio
+.PHONY: install test lint format clean dev-install run
 
 # Install package
 install:
-	pip install -e .
+	uv sync
 
 # Install with development dependencies
 dev-install:
-	pip install -e ".[dev]"
+	uv sync --dev
 
 # Run tests
 test:
-	pytest
+	uv run pytest
 
 # Run linting
 lint:
-	ruff check {{PACKAGE_NAME}}/
-	mypy {{PACKAGE_NAME}}/
+	uv run ruff check {{PACKAGE_NAME}}/
 
 # Format code
 format:
-	black {{PACKAGE_NAME}}/ tests/
-	isort {{PACKAGE_NAME}}/ tests/
+	uv run black {{PACKAGE_NAME}}/ tests/
+	uv run isort {{PACKAGE_NAME}}/ tests/
 
 # Clean build artifacts
 clean:
@@ -30,28 +29,23 @@ clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 
-# Run server in HTTP mode
-run-http:
-	{{CLI_NAME}} http --host 0.0.0.0 --port 8000
-
-# Run server in stdio mode
-run-stdio:
-	{{CLI_NAME}} stdio
+# Run MCP server
+run:
+	uv run {{CLI_NAME}}
 
 # Build package
 build:
-	python -m build
+	uv build
 
 # Help
 help:
 	@echo "Available commands:"
-	@echo "  install      - Install package"
+	@echo "  install      - Install package with uv"
 	@echo "  dev-install  - Install with development dependencies"
 	@echo "  test         - Run tests"
 	@echo "  lint         - Run linting"
 	@echo "  format       - Format code"
 	@echo "  clean        - Clean build artifacts"
-	@echo "  run-http     - Run server in HTTP mode"
-	@echo "  run-stdio    - Run server in stdio mode"
+	@echo "  run          - Run MCP server"
 	@echo "  build        - Build package"
 	@echo "  help         - Show this help"

@@ -27,7 +27,6 @@ class AdvancedMCPServer(BaseMCPServer):
         super().__init__(
             name="Advanced Patterns Server",
             api_client=api_client,
-            auth_required=False
         )
         
         # Optional: Use tool registry for organization
@@ -237,7 +236,7 @@ def main():
     print("- Error handling patterns")
     print("- Tool organization with registry")
     
-    server.run_server()
+    server.run()
 
 
 if __name__ == "__main__":

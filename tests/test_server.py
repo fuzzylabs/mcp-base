@@ -39,45 +39,30 @@ class TestBaseMCPServer:
         server = MockMCPServer(
             name="Test Server",
             api_client=api_client,
-            mcp_api_key="test-key"
         )
         
         assert server.name == "Test Server"
         assert server.api_client == api_client
-        assert server.mcp_api_key == "test-key"
-        assert server.auth_required is True
     
     @pytest.mark.asyncio
-    async def test_initialize_server(self):
-        """Test server initialization."""
+    async def test_connection_test(self):
+        """Test connection testing."""
         api_client = MockAPIClient("https://api.example.com", "test-token")
         server = MockMCPServer(
             name="Test Server",
             api_client=api_client
         )
         
-        # Should not raise an exception
-        await server.initialize()
+        # Should return True by default
+        result = await server.test_connection()
+        assert result is True
     
-    @pytest.mark.asyncio
-    async def test_cleanup_server(self):
-        """Test server cleanup."""
+    def test_tools_registration(self):
+        """Test that tools are registered."""
         server = MockMCPServer(name="Test Server")
         
-        # Should not raise an exception
-        await server.cleanup()
-    
-    def test_create_app(self):
-        """Test FastAPI app creation."""
-        server = MockMCPServer(name="Test Server")
-        app = server.create_app()
-        
-        assert app is not None
-        assert server._app == app
-        
-        # Should return same app on subsequent calls
-        app2 = server.create_app()
-        assert app == app2
+        # Should have MCP instance with tools
+        assert server.mcp is not None
 
 
 class TestBaseAPIClient:

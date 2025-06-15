@@ -2,88 +2,142 @@
 
 {{PROJECT_DESCRIPTION}}
 
-## Quick Start
+## Installation
 
-### Installation
+### Prerequisites
 
-```bash
-pip install {{PROJECT_NAME}}
-```
+- Python 3.10 or higher
+- [uv](https://docs.astral.sh/uv/) (recommended) or pip
 
-### Usage
-
-```python
-from {{PACKAGE_NAME}} import {{SERVER_CLASS_NAME}}
-
-# Create and run server
-server = {{SERVER_CLASS_NAME}}(
-    api_token="your-api-token",
-    mcp_api_key="your-mcp-api-key"
-)
-
-server.run_server()  # HTTP mode
-# or
-server.run_stdio()   # stdio mode for MCP clients
-```
-
-### Command Line
+### Install with uv
 
 ```bash
-# Run in HTTP mode
-{{CLI_NAME}} http --host 0.0.0.0 --port 8000
+git clone {{REPO_URL}}
+cd {{PROJECT_NAME}}
+uv sync
+```
 
-# Run in stdio mode for MCP client integration
-{{CLI_NAME}} stdio
+### Install with pip
+
+```bash
+git clone {{REPO_URL}}
+cd {{PROJECT_NAME}}
+pip install -e .
 ```
 
 ## Configuration
 
-### Environment Variables
+### Get {{SERVICE_NAME}} API Token
 
-- `{{API_TOKEN_ENV_VAR}}`: {{SERVICE_NAME}} API token
-- `MCP_API_KEY`: API key for MCP authentication (optional)
+1. Log into your {{SERVICE_NAME}} account
+2. Navigate to API settings (exact path depends on service)
+3. Create a new API token
+4. Copy the token for use in configuration
 
-### Example .env file
+### Configure Environment
+
+Create a `.env` file in the project root:
 
 ```env
-{{API_TOKEN_ENV_VAR}}=your-api-token-here
-MCP_API_KEY=your-mcp-api-key-here
+{{API_TOKEN_ENV_VAR}}=your-{{SERVICE_NAME_LOWER}}-api-token-here
+```
+
+## Usage with AI Assistants
+
+### Claude Desktop
+
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "{{PROJECT_NAME}}": {
+      "command": "uv",
+      "args": ["--directory", "/path/to/{{PROJECT_NAME}}", "run", "{{CLI_NAME}}"],
+      "env": {
+        "{{API_TOKEN_ENV_VAR}}": "your-api-token-here"
+      }
+    }
+  }
+}
+```
+
+### Cursor
+
+Add to your MCP settings or use the deeplink:
+
+```
+mcp://{{PROJECT_NAME}}?command=uv&args=--directory,/path/to/{{PROJECT_NAME}},run,{{CLI_NAME}}&env={{API_TOKEN_ENV_VAR}}=your-token
+```
+
+### Other MCP Clients
+
+For any MCP-compatible client, use:
+
+```bash
+uv run {{CLI_NAME}}
 ```
 
 ## Available Tools
 
 <!-- Update this list as you add new tools -->
-- `example_tool`: Example tool description
+- `list_items`: List items from {{SERVICE_NAME}}
+- `get_item`: Get detailed information about a specific item
 
 ## Development
 
-### Installation
+### Installation for Development
 
 ```bash
 git clone {{REPO_URL}}
 cd {{PROJECT_NAME}}
-pip install -e ".[dev]"
+uv sync --dev
 ```
 
 ### Running Tests
 
 ```bash
-pytest
+uv run pytest
 ```
 
 ### Code Quality
 
 ```bash
 # Format code
-black {{PACKAGE_NAME}}/ tests/
-isort {{PACKAGE_NAME}}/ tests/
+uv run black {{PACKAGE_NAME}}/ tests/
+uv run isort {{PACKAGE_NAME}}/ tests/
 
 # Lint code
-ruff check {{PACKAGE_NAME}}/
+uv run ruff check {{PACKAGE_NAME}}/
 
-# Type checking
-mypy {{PACKAGE_NAME}}/
+# Type checking (if mypy is added)
+uv run mypy {{PACKAGE_NAME}}/
 ```
+
+### Adding New Tools
+
+1. Add the tool method to `{{PACKAGE_NAME}}/server.py`
+2. Update this README's "Available Tools" section
+3. Add tests for the new tool
+4. Run the test suite to ensure everything works
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"{{API_TOKEN_ENV_VAR}} environment variable is required"**
+   - Ensure you've set the API token in your `.env` file
+   - Check the token is valid and has the necessary permissions
+
+2. **"Connection failed"**
+   - Verify your internet connection
+   - Check if the {{SERVICE_NAME}} API is accessible
+   - Confirm your API token hasn't expired
+
+3. **MCP client can't find the server**
+   - Check the path in your MCP configuration is correct
+   - Ensure uv is installed and accessible
+   - Verify the environment variables are set correctly
 
 ## Contributing
 
@@ -94,6 +148,12 @@ mypy {{PACKAGE_NAME}}/
 5. Ensure all tests pass
 6. Submit a pull request
 
-## License
+## Licence
 
-MIT License - see LICENSE file for details.
+MIT Licence - see LICENSE file for details.
+
+## Links
+
+- [{{SERVICE_NAME}} API Documentation]({{API_DOCS_URL}})
+- [Model Context Protocol](https://spec.modelcontextprotocol.io/)
+- [MCP Base Library](https://github.com/fuzzylabs/mcp-base)

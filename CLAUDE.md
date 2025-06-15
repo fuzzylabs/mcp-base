@@ -77,7 +77,8 @@ Copy all files from the `templates/` directory and replace template variables:
     "AUTHOR_NAME": "Your Name",
     "AUTHOR_EMAIL": "your.email@example.com",
     "HOMEPAGE_URL": "https://github.com/yourorg/salesforce-mcp",
-    "REPO_URL": "https://github.com/yourorg/salesforce-mcp.git"
+    "REPO_URL": "https://github.com/yourorg/salesforce-mcp.git",
+    "API_DOCS_URL": "https://developer.salesforce.com/docs/"
 }
 ```
 
