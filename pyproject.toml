@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcp-server-toolkit"
+version = "0.1.0"
+description = "A toolkit for building Model Context Protocol (MCP) servers with pluggable data sources"
+authors = [{ name = "Fuzzy Labs", email = "tom@fuzzylabs.ai" }]
+license = {text = "MIT"}
+requires-python = ">=3.10"
+readme = "README.md"
+dependencies = [
+    "fastmcp>=2.2.5",
+    "httpx>=0.25",
+    "python-dotenv",
+    "fastapi>=0.68.0",
+    "uvicorn[standard]",
+    "pydantic>=2.0",
+    "typing-extensions>=4.0"
+]
+
+[project.optional-dependencies]
+dev = ["black", "isort", "pytest", "ruff", "mypy"]
+capsule = []  # For Capsule CRM plugin
+salesforce = []  # For future Salesforce plugin
+hubspot = []  # For future HubSpot plugin
+
+[project.scripts]
+mcp-server = "mcp_server_toolkit.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/fuzzylabs/mcp-server-toolkit"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+    "pyyaml>=6.0",
+    "mypy>=1.0.0",
+]
