@@ -348,7 +348,7 @@ These frameworks demonstrate how foundational libraries can evolve while maintai
 
 ## Licence
 
-MIT Licence - see LICENCE file for complete details.
+MIT Licence - see LICENSE file for complete details.
 
 ---
 
