@@ -46,7 +46,7 @@ Create the following directory structure:
 ├── .env.example
 ├── pytest.ini
 ├── Makefile
-├── LICENSE
+├── LICENCE
 └── .gitignore
 ```
 

@@ -138,7 +138,7 @@ def build_filter_query(
 
 
 class MCPToolRegistry:
-    """Registry for organizing MCP tools by category."""
+    """Registry for organising MCP tools by category."""
     
     def __init__(self):
         self.tools = {}
