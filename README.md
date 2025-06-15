@@ -187,50 +187,52 @@ MCP Base powers production MCP servers across multiple industries:
 - **GitHub**: Code repository and project management
 - **Your API**: Transform any REST API into an AI-accessible service
 
-## Development Workflow
+## Development
 
-### Local Development
+### Contributing to MCP Base Library
+
 ```bash
-# Install with development dependencies
+# Clone and install MCP Base for development
+git clone https://github.com/fuzzylabs/mcp-base.git
+cd mcp-base
 pip install -e ".[dev]"
 
-# Run comprehensive tests
+# Run tests
 pytest
 
-# Code quality checks
+# Code quality
 make lint
+make format
 
-# Start development server
+# Run examples
 make run-minimal
 ```
 
-### Project Structure
+### Building MCP Servers with MCP Base
+
 ```bash
-your-mcp-server/
-├── your_mcp/
-│   ├── __init__.py
-│   ├── server.py           # Main server logic
-│   └── cli.py              # Command-line interface
-├── tests/
-│   └── test_server.py      # Comprehensive test suite
-├── .github/workflows/      # Automated CI/CD
-├── pyproject.toml          # Project configuration
-├── README.md               # Documentation
-└── .env.example            # Environment setup
+# Use templates to generate new MCP server
+# Follow CLAUDE.md for generation instructions
+
+# For generated servers, use uv:
+cd your-new-mcp-server/
+uv sync --dev
+uv run your-server-name
 ```
 
-### Quality Assurance
+### MCP Server Project Structure
 ```bash
-# Format code automatically
-black your_mcp/ tests/
-isort your_mcp/ tests/
-
-# Static analysis
-ruff check your_mcp/
-mypy your_mcp/
-
-# Test coverage
-pytest --cov=your_mcp
+your-mcp-server/                # Generated from templates
+├── your_mcp/
+│   ├── __init__.py
+│   ├── server.py              # Main server implementation
+├── tests/
+│   └── test_server.py         # Test suite
+├── .github/workflows/         # CI/CD workflows
+├── pyproject.toml             # Python project config
+├── README.md                  # Server documentation
+├── .env.example               # Environment template
+└── uv.lock                    # uv dependency lock file
 ```
 
 ## Deployment
