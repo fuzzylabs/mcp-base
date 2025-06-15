@@ -1,4 +1,4 @@
-.PHONY: install test lint format clean dev-install run-examples
+.PHONY: install test lint format clean dev-install run-http run-stdio
 
 # Install package
 install:
@@ -14,13 +14,13 @@ test:
 
 # Run linting
 lint:
-	ruff check mcp_base/
-	mypy mcp_base/
+	ruff check {{PACKAGE_NAME}}/
+	mypy {{PACKAGE_NAME}}/
 
 # Format code
 format:
-	black mcp_base/ tests/ examples/
-	isort mcp_base/ tests/ examples/
+	black {{PACKAGE_NAME}}/ tests/
+	isort {{PACKAGE_NAME}}/ tests/
 
 # Clean build artifacts
 clean:
@@ -30,15 +30,13 @@ clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 
-# Run example servers
-run-minimal:
-	python examples/minimal_server.py
+# Run server in HTTP mode
+run-http:
+	{{CLI_NAME}} http --host 0.0.0.0 --port 8000
 
-run-auth:
-	python examples/auth_patterns.py
-
-run-advanced:
-	python examples/advanced_patterns.py
+# Run server in stdio mode
+run-stdio:
+	{{CLI_NAME}} stdio
 
 # Build package
 build:
@@ -53,8 +51,7 @@ help:
 	@echo "  lint         - Run linting"
 	@echo "  format       - Format code"
 	@echo "  clean        - Clean build artifacts"
-	@echo "  run-minimal  - Run minimal example server"
-	@echo "  run-auth     - Run auth patterns example"
-	@echo "  run-advanced - Run advanced patterns example"
+	@echo "  run-http     - Run server in HTTP mode"
+	@echo "  run-stdio    - Run server in stdio mode"
 	@echo "  build        - Build package"
 	@echo "  help         - Show this help"

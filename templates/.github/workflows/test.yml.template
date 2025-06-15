@@ -28,14 +28,15 @@ jobs:
     
     - name: Lint with ruff
       run: |
-        ruff check mcp_base/
+        ruff check {{PACKAGE_NAME}}/
     
     - name: Check types with mypy
       run: |
-        mypy mcp_base/
+        mypy {{PACKAGE_NAME}}/
     
     - name: Test with pytest
       run: |
         pytest
       env:
         PYTEST_CURRENT_TEST: true
+        {{API_TOKEN_ENV_VAR}}: test-token

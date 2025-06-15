@@ -1,49 +1,29 @@
-# MCP Server Toolkit
+# MCP Base
 
-A library for building Model Context Protocol (MCP) servers using common patterns extracted from real-world implementations.
+A foundational library for building Model Context Protocol (MCP) servers using proven patterns extracted from real-world implementations.
 
 ## Overview
 
-The MCP Server Toolkit provides reusable components and patterns to quickly build MCP servers for different APIs and data sources. It extracts common functionality like authentication, pagination, error handling, and server setup into a clean library that follows the same patterns used in successful MCP implementations.
+MCP Base provides reusable components and patterns to quickly build MCP servers for different APIs and data sources. It extracts common functionality like authentication, pagination, error handling, and server setup into a clean library that follows the same patterns used in successful MCP implementations.
+
+Rather than a plugin system, MCP Base is a **foundational library** that you import and build upon. Each MCP server remains its own focused project while benefiting from shared infrastructure and evolving best practices.
 
 ## Features
 
-- **Library Architecture**: Reusable components and base classes for quick MCP server development
+- **Foundational Library**: Base classes and utilities for rapid MCP server development
+- **Project Templates**: Complete boilerplate for generating new MCP servers
 - **API Client Abstraction**: Built-in HTTP client with authentication and error handling
 - **Common Patterns**: Pagination, search, filtering utilities extracted from real implementations
-- **Authentication**: Multiple auth strategies (Bearer tokens, API keys)
-- **HTTP & stdio modes**: Run as a web server or integrate directly with MCP clients
-- **Type Safety**: Built with Python type hints for better development experience
-- **Async Support**: Full async/await support for high performance
+- **Multiple Auth Strategies**: Bearer tokens, API keys, custom authentication
+- **Development Infrastructure**: Testing, linting, CI/CD templates
+- **Evolution Strategy**: All servers benefit from library improvements
 
 ## Quick Start
 
-### Installation
-
-```bash
-pip install mcp-server-toolkit
-```
-
-### Using the Built-in Capsule Server
+### For Building New MCP Servers
 
 ```python
-from mcp_server_toolkit import CapsuleMCPServer
-
-# Create and run Capsule CRM server
-server = CapsuleMCPServer(
-    api_token="your-capsule-api-token",
-    mcp_api_key="your-mcp-api-key"
-)
-
-server.run_server()  # HTTP mode
-# or
-server.run_stdio()   # stdio mode for MCP clients
-```
-
-### Building a Custom Server
-
-```python
-from mcp_server_toolkit import BaseMCPServer, BearerTokenAPIClient, paginated_endpoint
+from mcp_base import BaseMCPServer, BearerTokenAPIClient, paginated_endpoint
 
 class MyMCPServer(BaseMCPServer):
     def __init__(self, api_token: str, mcp_api_key: str = None):
@@ -73,15 +53,21 @@ server = MyMCPServer(api_token="your-token")
 server.run_server()
 ```
 
-### Command Line Usage
+### Using Project Templates
 
-```bash
-# Run Capsule CRM server in HTTP mode
-mcp-server capsule http --host 0.0.0.0 --port 8000
+MCP Base includes complete project templates for generating new MCP servers:
 
-# Run in stdio mode for MCP client integration
-mcp-server capsule stdio
 ```
+templates/
+├── pyproject.toml.template      # Python project configuration
+├── README.md.template           # Documentation template
+├── {{PACKAGE_NAME}}/            # Source code templates
+├── tests/                       # Test templates
+├── .github/workflows/           # CI/CD templates
+└── development files...         # Makefile, pytest.ini, etc.
+```
+
+See `CLAUDE.md` for detailed generation instructions.
 
 ## Library Components
 
@@ -101,121 +87,102 @@ mcp-server capsule stdio
 - **`MCPToolRegistry`**: Tool organization and categorization
 - **`require_env_var()`**: Environment variable validation with test support
 
-### Built-in Servers
+## Evolution Strategy
 
-#### Capsule CRM Server
+MCP Base follows a **shared evolution model** where improvements to the foundational library automatically benefit all MCP servers built on it:
 
-Complete MCP server for Capsule CRM with 25+ tools.
-
-**Available Tools:**
-- `list_contacts`: Get paginated list of contacts
-- `search_contacts`: Search contacts by keyword
-- `list_recent_contacts`: Get recently contacted contacts
-- `list_opportunities`: Get paginated list of opportunities
-- `list_open_opportunities`: Get open opportunities
-- `list_cases`: Get support cases
-- `search_cases`: Search cases by keyword
-- `get_case`: Get specific case details
-- `list_tasks`: Get tasks
-- `get_task`: Get specific task details
-- `list_entries`: Get timeline entries
-- `get_entry`: Get specific entry details
-- `list_projects`: Get projects
-- `get_project`: Get specific project details
-- `list_tags`: Get tags
-- `get_tag`: Get specific tag details
-- `list_users`: Get users
-- `get_user`: Get specific user details
-- `get_contact`: Get specific contact details
-- `get_opportunity`: Get specific opportunity details
-- `list_pipelines`: Get sales pipelines
-- `list_stages`: Get pipeline stages
-- `list_milestones`: Get opportunity milestones
-- `list_custom_fields`: Get custom field definitions
-- `list_products`: Get products
-- `list_categories`: Get product categories
-- `list_currencies`: Get supported currencies
-
-## Configuration
-
-### Environment Variables
-
-- `MCP_API_KEY`: API key for authenticating requests to MCP endpoints
-- `CAPSULE_API_TOKEN`: Capsule CRM API token
-- `CAPSULE_BASE_URL`: Capsule CRM API base URL (optional)
-
-### Example .env file
-
-```env
-MCP_API_KEY=your-mcp-api-key
-CAPSULE_API_TOKEN=your-capsule-api-token
-CAPSULE_BASE_URL=https://api.capsulecrm.com/api/v2
 ```
+mcp-base (library) ─┬─ Evolution ──→ All servers benefit
+                    │
+                    ├─ capsule-mcp ──→ Uses mcp-base
+                    ├─ salesforce-mcp ──→ Uses mcp-base  
+                    ├─ hubspot-mcp ──→ Uses mcp-base
+                    └─ your-mcp ──→ Uses mcp-base
+```
+
+### Benefits
+
+- **Future-Proof**: Servers inherit improvements automatically
+- **Consistent Evolution**: All servers move forward together  
+- **Low Migration Cost**: Changes happen in the library, not every server
+- **Best Practice Propagation**: New patterns flow to all implementations
+- **Community Learning**: Everyone benefits from collective improvements
+
+### Migration Examples
+
+**Container Support**: When MCP Base adds containerization support, all existing servers can adopt it by updating their base class and adding a Dockerfile.
+
+**New Authentication**: When MCP Base adds OAuth support, all servers get access to the new `OAuthAPIClient` class.
+
+**Performance Improvements**: Optimizations in the base HTTP client automatically improve all servers.
+
+## Inspired By Successful Frameworks
+
+This evolution approach follows patterns proven by frameworks like [FastAPI](https://fastapi.tiangolo.com/) and [Next.js](https://nextjs.org/), where improvements to the core framework automatically benefit all applications built on it.
+
+## Examples
+
+### Minimal Server
+```python
+# examples/minimal_server.py - Basic MCP server
+from mcp_base import BaseMCPServer, BearerTokenAPIClient
+
+class MinimalMCPServer(BaseMCPServer):
+    # Simple implementation with basic tools
+```
+
+### Authentication Patterns
+```python
+# examples/auth_patterns.py - Different auth strategies
+BearerTokenAPIClient()  # Most common
+APIKeyClient()          # For API key auth
+CustomAuthClient()      # Custom authentication
+```
+
+### Advanced Patterns
+```python
+# examples/advanced_patterns.py - Complex use cases
+@paginated_endpoint()    # Automatic pagination
+build_filter_query()    # Complex filtering
+MCPToolRegistry()       # Tool organization
+```
+
+## Real-World Usage
+
+MCP Base is extracted from and powers production MCP servers:
+
+- **capsule-mcp**: Capsule CRM integration (original implementation)
+- **Future servers**: Salesforce, HubSpot, GitHub, and more
+
+Each server is its own focused project while sharing the foundational library.
 
 ## Development
 
-### Building a Custom MCP Server
+### Installation
 
-The toolkit makes it easy to build new MCP servers by providing common patterns:
-
-```python
-from mcp_server_toolkit import (
-    BaseMCPServer, 
-    BearerTokenAPIClient,
-    paginated_endpoint,
-    build_api_params
-)
-
-class GitHubMCPServer(BaseMCPServer):
-    def __init__(self, github_token: str, mcp_api_key: str = None):
-        api_client = BearerTokenAPIClient(
-            base_url="https://api.github.com",
-            api_token=github_token,
-            user_agent="my-github-mcp-server/1.0"
-        )
-        
-        super().__init__(
-            name="GitHub MCP Server",
-            api_client=api_client,
-            mcp_api_key=mcp_api_key
-        )
-    
-    async def test_connection(self) -> bool:
-        """Test GitHub API connection."""
-        try:
-            await self.api_client.get("user")
-            return True
-        except:
-            return False
-    
-    def register_tools(self):
-        @self.mcp.tool
-        @paginated_endpoint()
-        async def list_repos(
-            page: int = 1, 
-            per_page: int = 30,
-            org: str = None
-        ):
-            """List repositories."""
-            endpoint = f"orgs/{org}/repos" if org else "user/repos"
-            params = build_api_params(page=page, per_page=per_page)
-            return await self.api_client.get(endpoint, params=params)
-        
-        @self.mcp.tool
-        async def get_repo(owner: str, repo: str):
-            """Get repository details."""
-            return await self.api_client.get(f"repos/{owner}/{repo}")
+```bash
+pip install mcp-base
 ```
 
-### Common Patterns
+### Running Examples
 
-The toolkit includes utilities for common API patterns:
+```bash
+# Try the minimal server
+python examples/minimal_server.py
 
-- **Pagination**: Use `@paginated_endpoint()` decorator and `build_api_params()`
-- **Search**: Use `build_search_params()` for search endpoints
-- **Filtering**: Use `build_filter_query()` for complex filters
-- **Authentication**: Choose from `BearerTokenAPIClient` or `APIKeyClient`
-- **Error Handling**: Built into the base API client
+# Explore authentication patterns  
+python examples/auth_patterns.py
+
+# See advanced patterns
+python examples/advanced_patterns.py
+```
+
+### Building New Servers
+
+1. **Use Templates**: Copy from `templates/` directory
+2. **Follow CLAUDE.md**: Detailed generation guide
+3. **Import mcp-base**: Build on the foundational library
+4. **Focus on Business Logic**: Let the library handle infrastructure
 
 ### Running Tests
 
@@ -228,48 +195,39 @@ pytest
 
 ```bash
 # Format code
-black mcp_server_toolkit/
-isort mcp_server_toolkit/
+black mcp_base/ tests/ examples/
+isort mcp_base/ tests/ examples/
 
 # Lint code
-ruff mcp_server_toolkit/
+ruff check mcp_base/
 
 # Type checking
-mypy mcp_server_toolkit/
+mypy mcp_base/
 ```
 
 ## Architecture
 
-The toolkit provides a layered architecture for building MCP servers:
-
 ```
 ┌─────────────────────────────────────┐
 │          Your MCP Server            │  ← Inherit from BaseMCPServer
-│  (e.g., GitHubMCPServer)           │
+│  (e.g., SalesforceMCPServer)       │
 ├─────────────────────────────────────┤
-│         BaseMCPServer              │  ← Base class with common functionality
-│  • FastMCP integration            │
-│  • Authentication middleware       │
-│  • HTTP + stdio modes             │
+│         BaseMCPServer               │  ← Base class with common functionality
+│  • FastMCP integration             │
+│  • Authentication middleware        │
+│  • HTTP + stdio modes              │
 ├─────────────────────────────────────┤
-│        API Client Layer            │  ← HTTP client abstraction
-│  • BearerTokenAPIClient           │
-│  • APIKeyClient                   │
-│  • Error handling                 │
+│        API Client Layer             │  ← HTTP client abstraction
+│  • BearerTokenAPIClient            │
+│  • APIKeyClient                    │
+│  • Error handling                  │
 ├─────────────────────────────────────┤
-│          Utilities                 │  ← Common patterns and helpers
-│  • Pagination decorator           │
-│  • Parameter builders             │
-│  • Environment helpers            │
+│          Utilities                  │  ← Common patterns and helpers
+│  • Pagination decorator            │
+│  • Parameter builders              │
+│  • Environment helpers             │
 └─────────────────────────────────────┘
 ```
-
-### Key Benefits
-
-- **Rapid Development**: Start with working patterns from real implementations
-- **Consistency**: All servers follow the same architecture
-- **Reusability**: Common code extracted into the library
-- **Maintainability**: Clear separation of concerns
 
 ## Contributing
 
@@ -280,6 +238,8 @@ The toolkit provides a layered architecture for building MCP servers:
 5. Ensure all tests pass
 6. Submit a pull request
 
+Improvements to MCP Base benefit the entire ecosystem of MCP servers!
+
 ## License
 
 MIT License - see LICENSE file for details.
@@ -288,4 +248,5 @@ MIT License - see LICENSE file for details.
 
 - [Model Context Protocol Specification](https://spec.modelcontextprotocol.io/)
 - [FastMCP Documentation](https://github.com/jlowin/fastmcp)
-- [Capsule CRM API Documentation](https://developer.capsulecrm.com/)
+- [Project Templates](./templates/)
+- [Generation Guide](./CLAUDE.md)

@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock
 from typing import Dict, Any
 
-from mcp_server_toolkit import BaseMCPServer, BaseAPIClient
+from mcp_base import BaseMCPServer, BaseAPIClient
 
 
 class MockAPIClient(BaseAPIClient):

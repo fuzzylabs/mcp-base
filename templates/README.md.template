@@ -1,0 +1,99 @@
+# {{PROJECT_TITLE}}
+
+{{PROJECT_DESCRIPTION}}
+
+## Quick Start
+
+### Installation
+
+```bash
+pip install {{PROJECT_NAME}}
+```
+
+### Usage
+
+```python
+from {{PACKAGE_NAME}} import {{SERVER_CLASS_NAME}}
+
+# Create and run server
+server = {{SERVER_CLASS_NAME}}(
+    api_token="your-api-token",
+    mcp_api_key="your-mcp-api-key"
+)
+
+server.run_server()  # HTTP mode
+# or
+server.run_stdio()   # stdio mode for MCP clients
+```
+
+### Command Line
+
+```bash
+# Run in HTTP mode
+{{CLI_NAME}} http --host 0.0.0.0 --port 8000
+
+# Run in stdio mode for MCP client integration
+{{CLI_NAME}} stdio
+```
+
+## Configuration
+
+### Environment Variables
+
+- `{{API_TOKEN_ENV_VAR}}`: {{SERVICE_NAME}} API token
+- `MCP_API_KEY`: API key for MCP authentication (optional)
+
+### Example .env file
+
+```env
+{{API_TOKEN_ENV_VAR}}=your-api-token-here
+MCP_API_KEY=your-mcp-api-key-here
+```
+
+## Available Tools
+
+<!-- Update this list as you add new tools -->
+- `example_tool`: Example tool description
+
+## Development
+
+### Installation
+
+```bash
+git clone {{REPO_URL}}
+cd {{PROJECT_NAME}}
+pip install -e ".[dev]"
+```
+
+### Running Tests
+
+```bash
+pytest
+```
+
+### Code Quality
+
+```bash
+# Format code
+black {{PACKAGE_NAME}}/ tests/
+isort {{PACKAGE_NAME}}/ tests/
+
+# Lint code
+ruff check {{PACKAGE_NAME}}/
+
+# Type checking
+mypy {{PACKAGE_NAME}}/
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details.

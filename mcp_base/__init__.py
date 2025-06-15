@@ -1,8 +1,7 @@
-"""MCP Server Toolkit - A library for building Model Context Protocol servers."""
+"""MCP Base - A foundational library for building Model Context Protocol servers."""
 
 from .server import BaseMCPServer
 from .api_client import BaseAPIClient, BearerTokenAPIClient, APIKeyClient
-from .capsule_server import CapsuleMCPServer
 from .utils import (
     paginated_endpoint,
     build_api_params,
@@ -17,7 +16,6 @@ __all__ = [
     "BaseAPIClient",
     "BearerTokenAPIClient", 
     "APIKeyClient",
-    "CapsuleMCPServer",
     "paginated_endpoint",
     "build_api_params",
     "build_search_params",

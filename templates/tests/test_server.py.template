@@ -1,0 +1,83 @@
+"""Tests for {{SERVICE_NAME}} MCP Server."""
+
+import pytest
+from unittest.mock import AsyncMock, patch
+import os
+
+from {{PACKAGE_NAME}} import {{SERVER_CLASS_NAME}}
+
+
+class Test{{SERVER_CLASS_NAME}}:
+    """Test cases for {{SERVER_CLASS_NAME}}."""
+    
+    def test_server_initialization(self):
+        """Test server initializes correctly."""
+        with patch.dict(os.environ, {"{{API_TOKEN_ENV_VAR}}": "test-token"}):
+            server = {{SERVER_CLASS_NAME}}(
+                api_token="test-token",
+                mcp_api_key="test-mcp-key"
+            )
+            
+            assert server.name == "{{SERVICE_NAME}} MCP Server"
+            assert server.api_client is not None
+            assert server.mcp_api_key == "test-mcp-key"
+            assert server.auth_required is True
+    
+    @pytest.mark.asyncio
+    async def test_test_connection_success(self):
+        """Test successful API connection."""
+        with patch.dict(os.environ, {"{{API_TOKEN_ENV_VAR}}": "test-token"}):
+            server = {{SERVER_CLASS_NAME}}(api_token="test-token")
+            
+            # Mock the API client's get method
+            server.api_client.get = AsyncMock(return_value={"status": "ok"})
+            
+            result = await server.test_connection()
+            assert result is True
+    
+    @pytest.mark.asyncio
+    async def test_test_connection_failure(self):
+        """Test failed API connection."""
+        with patch.dict(os.environ, {"{{API_TOKEN_ENV_VAR}}": "test-token"}):
+            server = {{SERVER_CLASS_NAME}}(api_token="test-token")
+            
+            # Mock the API client's get method to raise an exception
+            server.api_client.get = AsyncMock(side_effect=Exception("Connection failed"))
+            
+            result = await server.test_connection()
+            assert result is False
+    
+    def test_create_app(self):
+        """Test FastAPI app creation."""
+        with patch.dict(os.environ, {"{{API_TOKEN_ENV_VAR}}": "test-token"}):
+            server = {{SERVER_CLASS_NAME}}(api_token="test-token")
+            app = server.create_app()
+            
+            assert app is not None
+            assert server._app == app
+    
+    def test_tools_registered(self):
+        """Test that tools are registered correctly."""
+        with patch.dict(os.environ, {"{{API_TOKEN_ENV_VAR}}": "test-token"}):
+            server = {{SERVER_CLASS_NAME}}(api_token="test-token")
+            
+            # Check that MCP tools are registered
+            # This is a basic check - you may want to inspect server.mcp for specific tools
+            assert server.mcp is not None
+
+
+# Add more specific tests for your tools here
+# Example:
+# @pytest.mark.asyncio
+# async def test_list_items():
+#     """Test the list_items tool."""
+#     with patch.dict(os.environ, {"{{API_TOKEN_ENV_VAR}}": "test-token"}):
+#         server = {{SERVER_CLASS_NAME}}(api_token="test-token")
+#         
+#         # Mock the API response
+#         mock_response = {"items": [{"id": 1, "name": "Test Item"}]}
+#         server.api_client.get = AsyncMock(return_value=mock_response)
+#         
+#         # Test the tool (you'll need to access it through the MCP framework)
+#         # result = await server.some_method_to_call_tool("list_items")
+#         # assert result == mock_response

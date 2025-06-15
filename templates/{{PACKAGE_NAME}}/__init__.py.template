@@ -1,0 +1,6 @@
+"""{{PROJECT_TITLE}} - MCP Server for {{SERVICE_NAME}}."""
+
+from .server import {{SERVER_CLASS_NAME}}
+
+__all__ = ["{{SERVER_CLASS_NAME}}"]
+__version__ = "0.1.0"

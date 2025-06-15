@@ -3,28 +3,26 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mcp-base"
+name = "{{PROJECT_NAME}}"
 version = "0.1.0"
-description = "A foundational library for building Model Context Protocol (MCP) servers"
-authors = [{ name = "Fuzzy Labs", email = "tom@fuzzylabs.ai" }]
+description = "{{PROJECT_DESCRIPTION}}"
+authors = [{ name = "{{AUTHOR_NAME}}", email = "{{AUTHOR_EMAIL}}" }]
 license = {text = "MIT"}
 requires-python = ">=3.10"
 readme = "README.md"
 dependencies = [
-    "fastmcp>=2.2.5",
-    "httpx>=0.25",
+    "mcp-base>=0.1.0",
     "python-dotenv",
-    "fastapi>=0.68.0",
-    "uvicorn[standard]",
-    "pydantic>=2.0",
-    "typing-extensions>=4.0"
 ]
 
 [project.optional-dependencies]
 dev = ["black", "isort", "pytest", "ruff", "mypy"]
 
+[project.scripts]
+{{CLI_NAME}} = "{{PACKAGE_NAME}}.cli:main"
+
 [project.urls]
-Homepage = "https://github.com/fuzzylabs/mcp-base"
+Homepage = "{{HOMEPAGE_URL}}"
 
 [tool.setuptools.packages.find]
 where = ["."]
