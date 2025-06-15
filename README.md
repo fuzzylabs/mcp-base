@@ -1,121 +1,70 @@
-# MCP Base - Model Context Protocol Server Library
+# MCP Base
 
-Build powerful MCP servers rapidly with proven patterns and reusable components. MCP Base is the foundational Python library for creating Model Context Protocol servers that connect AI assistants to external APIs and data sources.
-
-## What is MCP Base?
-
-MCP Base is a comprehensive Python library that provides everything needed to build production-ready Model Context Protocol (MCP) servers. Extract common functionality like authentication, pagination, error handling, and server setup with battle-tested patterns from real-world MCP implementations.
-
-**Transform any API into an AI-accessible service in minutes, not hours.**
+A foundational Python library for building Model Context Protocol (MCP) servers. Transform any API into an AI-accessible service with proven patterns and reusable components.
 
 ## Key Features
 
-- **🚀 Rapid Development**: Pre-built base classes and utilities for instant MCP server creation
-- **📋 Complete Project Templates**: Full boilerplate including tests, CI/CD, documentation
-- **🔐 Multiple Authentication**: Bearer tokens, API keys, custom authentication strategies
-- **📄 Automatic Pagination**: Built-in decorators for handling paginated API responses
-- **🛠️ Development Tools**: Testing frameworks, linting, type checking, CI/CD workflows
-- **🔄 Future-Proof Architecture**: Benefit automatically from library improvements and new features
-- **📚 Production-Ready**: Extracted from live MCP servers handling real workloads
+- **Base Classes**: Inherit from `BaseMCPServer` for rapid MCP server development
+- **Authentication**: Built-in support for Bearer tokens, API keys, and custom auth
+- **Project Templates**: Complete boilerplate with tests, CI/CD, and documentation
+- **Utilities**: Pagination decorators, parameter builders, and common patterns
+- **Future-Proof**: Automatic benefits from library improvements and new features
 
-## Quick Start Guide
-
-### Installation
+## Quick Start
 
 ```bash
 pip install mcp-base
 ```
 
-### Create Your First MCP Server
-
 ```python
-from mcp_base import BaseMCPServer, BearerTokenAPIClient, paginated_endpoint
+from mcp_base import BaseMCPServer, BearerTokenAPIClient
 
-class GitHubMCPServer(BaseMCPServer):
-    def __init__(self, github_token: str):
+class MyMCPServer(BaseMCPServer):
+    def __init__(self, api_token: str):
         api_client = BearerTokenAPIClient(
-            base_url="https://api.github.com",
-            api_token=github_token
+            base_url="https://api.example.com",
+            api_token=api_token
         )
-        
-        super().__init__(
-            name="GitHub MCP Server",
-            api_client=api_client
-        )
+        super().__init__("My Server", api_client)
     
     def register_tools(self):
         @self.mcp.tool
-        @paginated_endpoint()
-        async def list_repositories(page: int = 1, per_page: int = 30):
-            """List GitHub repositories with automatic pagination."""
-            return await self.api_client.get("user/repos", params={
-                "page": page,
-                "per_page": per_page
-            })
-        
-        @self.mcp.tool
-        async def get_repository(owner: str, repo: str):
-            """Get detailed repository information."""
-            return await self.api_client.get(f"repos/{owner}/{repo}")
+        async def get_data(id: str):
+            """Get data by ID."""
+            return await self.api_client.get(f"data/{id}")
 
-# Deploy your server
-server = GitHubMCPServer(github_token="your-token")
-server.run()  # MCP stdio mode for AI integration
+server = MyMCPServer("your-token")
+server.run()
 ```
 
-### Project Generation Templates
+## Project Templates
 
-Generate complete MCP server projects instantly:
-
-```
-templates/
-├── pyproject.toml.template      # Python packaging configuration
-├── README.md.template           # Project documentation
-├── {{PACKAGE_NAME}}/            # Source code structure
-│   ├── __init__.py.template
-│   ├── server.py.template       # Main server implementation
-│   └── cli.py.template          # Command-line interface
-├── tests/                       # Comprehensive test suite
-├── .github/workflows/           # GitHub Actions CI/CD
-├── Makefile.template            # Development commands
-└── .env.example.template        # Environment configuration
-```
+Generate complete MCP server projects using the templates in `templates/`. See [CLAUDE.md](./CLAUDE.md) for detailed generation instructions.
 
 ## Core Components
 
-### Server Foundation
-- **`BaseMCPServer`**: Abstract base class providing common MCP server functionality
-- **`BaseAPIClient`**: HTTP client with built-in authentication and error handling
-- **`BearerTokenAPIClient`**: Industry-standard Bearer token authentication
-- **`APIKeyClient`**: API key authentication for simpler services
+- **`BaseMCPServer`** - Abstract base class for MCP servers
+- **`BaseAPIClient`** - HTTP client with authentication and error handling
+- **`BearerTokenAPIClient`** - Bearer token authentication
+- **`APIKeyClient`** - API key authentication
+- **`@paginated_endpoint`** - Automatic pagination decorator
+- **`build_api_params()`** - Parameter dictionary construction
+- **`build_filter_query()`** - Complex filtering and sorting
+- **`MCPToolRegistry`** - Tool organisation and management
 
-### Development Utilities
-- **`@paginated_endpoint`**: Automatic pagination parameter handling
-- **`build_api_params()`**: Clean API parameter dictionary construction
-- **`build_search_params()`**: Standardised search endpoint parameters
-- **`build_filter_query()`**: Complex API filtering and sorting
-- **`MCPToolRegistry`**: Organised tool categorisation and management
+## Authentication
 
-## Authentication Strategies
-
-### Bearer Token Authentication (Recommended)
+**Bearer Token (Recommended)**
 ```python
-api_client = BearerTokenAPIClient(
-    base_url="https://api.service.com/v1",
-    api_token="your-bearer-token"
-)
+api_client = BearerTokenAPIClient("https://api.service.com", "your-token")
 ```
 
-### API Key Authentication
+**API Key**
 ```python
-api_client = APIKeyClient(
-    base_url="https://api.service.com/v1",
-    api_token="your-api-key",
-    api_key_header="X-API-Key"
-)
+api_client = APIKeyClient("https://api.service.com", "your-key", api_key_header="X-API-Key")
 ```
 
-### Custom Authentication
+**Custom Authentication**
 ```python
 class CustomAuthClient(BaseAPIClient):
     def get_auth_headers(self):
@@ -124,39 +73,15 @@ class CustomAuthClient(BaseAPIClient):
 
 ## Advanced Patterns
 
-### Intelligent Pagination
-```python
-@self.mcp.tool
-@paginated_endpoint(default_per_page=50, max_per_page=200)
-async def list_customers(page: int = 1, per_page: int = 50):
-    """Automatically handles pagination limits and parameters."""
-    params = build_api_params(page=page, per_page=per_page)
-    return await self.api_client.get("customers", params=params)
-```
-
-### Advanced Filtering
-```python
-@self.mcp.tool
-async def search_projects(
-    status: str = None,
-    created_after: str = None,
-    tags: list = None
-):
-    """Complex filtering with multiple conditions."""
-    conditions = []
-    if status:
-        conditions.append({"field": "status", "operator": "eq", "value": status})
-    
-    filter_data = build_filter_query(
-        conditions=conditions,
-        order_by=[{"field": "created_at", "direction": "desc"}]
-    )
-    return await self.api_client.post("projects/search", json=filter_data)
-```
+See `examples/` directory for complete implementations of:
+- **Pagination** - `@paginated_endpoint` decorator with automatic parameter handling
+- **Complex Filtering** - Multi-condition search with `build_filter_query()`
+- **Error Handling** - Graceful API error management
+- **Tool Organisation** - Registry patterns for large servers
 
 ## Evolution Architecture
 
-MCP Base implements a **shared evolution model** ensuring all servers benefit from library improvements automatically:
+MCP Base implements a **shared evolution model** - all servers automatically benefit from library improvements:
 
 ```
                     Automatic Benefits
@@ -169,181 +94,39 @@ mcp-base library ─────────────────────
      └─ Security enhancements ─────────► Latest best practices
 ```
 
-### Migration Benefits
+This follows proven patterns from successful frameworks like [FastAPI](https://fastapi.tiangolo.com/) and [Next.js](https://nextjs.org/), which demonstrate how foundational libraries can evolve while maintaining backward compatibility and automatically improving all dependent projects.
 
-**Container Support**: When MCP Base adds containerisation, update your import and add a Dockerfile - instant Docker deployment.
+**Examples**: When MCP Base adds OAuth support, all existing servers inherit it. Performance optimisations boost every server without code changes.
 
-**OAuth Integration**: New OAuth support automatically available to all existing servers.
+## Example MCP Servers
 
-**Performance Improvements**: HTTP client optimisations boost all servers without code changes.
-
-## Real-World Production Usage
-
-MCP Base powers production MCP servers across multiple industries:
-
-- **Capsule CRM**: Complete customer relationship management integration
-- **Salesforce**: Enterprise CRM and sales automation  
-- **HubSpot**: Marketing and sales platform connectivity
-- **GitHub**: Code repository and project management
-- **Your API**: Transform any REST API into an AI-accessible service
+- **[Capsule CRM](https://github.com/fuzzylabs/capsule-mcp)** - Customer relationship management integration
 
 ## Development
 
-### Contributing to MCP Base Library
-
+**Contributing to MCP Base**
 ```bash
-# Clone and install MCP Base for development
 git clone https://github.com/fuzzylabs/mcp-base.git
 cd mcp-base
 pip install -e ".[dev]"
-
-# Run tests
 pytest
-
-# Code quality
-make lint
-make format
-
-# Run examples
-make run-minimal
 ```
 
-### Building MCP Servers with MCP Base
-
+**Building MCP Servers**
 ```bash
-# Use templates to generate new MCP server
-# Follow CLAUDE.md for generation instructions
-
-# For generated servers, use uv:
+# Use templates to generate new servers (see CLAUDE.md)
 cd your-new-mcp-server/
 uv sync --dev
 uv run your-server-name
 ```
 
-### MCP Server Project Structure
-```bash
-your-mcp-server/                # Generated from templates
-├── your_mcp/
-│   ├── __init__.py
-│   ├── server.py              # Main server implementation
-├── tests/
-│   └── test_server.py         # Test suite
-├── .github/workflows/         # CI/CD workflows
-├── pyproject.toml             # Python project config
-├── README.md                  # Server documentation
-├── .env.example               # Environment template
-└── uv.lock                    # uv dependency lock file
-```
+## Documentation
 
-## Deployment
-
-### AI Assistant Integration
-```python
-server.run()
-# Connects directly to AI assistants via stdio protocol
-```
-
-### Container Deployment
-```dockerfile
-FROM python:3.11-slim
-COPY . .
-RUN pip install -e .
-CMD ["your-mcp-server"]
-```
-
-## Examples and Learning
-
-### Minimal Implementation
-```python
-# examples/minimal_server.py
-class MinimalMCPServer(BaseMCPServer):
-    """Demonstrates basic MCP server in under 20 lines"""
-```
-
-### Authentication Showcase  
-```python
-# examples/auth_patterns.py
-# Complete examples of all authentication strategies
-BearerTokenAPIClient()    # OAuth 2.0 Bearer tokens
-APIKeyClient()           # Simple API key authentication  
-CustomAuthClient()       # Custom authentication schemes
-```
-
-### Production Patterns
-```python
-# examples/advanced_patterns.py
-@paginated_endpoint()     # Automatic pagination handling
-build_filter_query()     # Complex search and filtering
-MCPToolRegistry()        # Enterprise tool organisation
-```
-
-## Framework Inspiration
-
-MCP Base follows proven patterns from successful frameworks:
-
-- **[FastAPI](https://fastapi.tiangolo.com/)**: Automatic documentation, type safety, performance optimisations
-- **[Next.js](https://nextjs.org/)**: Zero-configuration deployment, automatic optimisations, seamless upgrades
-
-These frameworks demonstrate how foundational libraries can evolve while maintaining backward compatibility and automatically improving all dependent projects.
-
-## Technical Architecture
-
-```
-┌─────────────────────────────────────┐
-│     Your MCP Server Application     │  ← Business logic and API integration
-│   (GitHub, Salesforce, Custom)     │
-├─────────────────────────────────────┤
-│         BaseMCPServer               │  ← MCP protocol implementation
-│  • Tool registration               │
-│  • HTTP + stdio modes              │  
-│  • Authentication middleware       │
-├─────────────────────────────────────┤
-│        API Client Layer            │  ← HTTP communication
-│  • Automatic authentication       │
-│  • Error handling & retries       │
-│  • Request/response formatting    │
-├─────────────────────────────────────┤
-│         Utility Functions          │  ← Common patterns
-│  • Pagination decorators          │
-│  • Parameter builders             │
-│  • Environment management         │
-└─────────────────────────────────────┘
-```
-
-## Community and Contribution
-
-### Contributing Guidelines
-1. Fork the repository on GitHub
-2. Create a descriptive feature branch
-3. Implement changes with comprehensive tests
-4. Ensure all quality checks pass
-5. Submit a detailed pull request
-
-**Every improvement to MCP Base benefits the entire ecosystem of MCP servers worldwide.**
-
-### Community Projects
-- Share your MCP server implementations
-- Contribute new authentication strategies
-- Suggest API patterns and utilities
-- Report issues and enhancement requests
-
-## Support and Documentation
-
-### Resources
-- **[Model Context Protocol Specification](https://spec.modelcontextprotocol.io/)**: Official MCP documentation
-- **[FastMCP Documentation](https://github.com/jlowin/fastmcp)**: Underlying MCP framework
-- **[Project Templates](./templates/)**: Complete project boilerplate
-- **[Generation Guide](./CLAUDE.md)**: Detailed development instructions
-
-### Getting Help
-- **GitHub Issues**: Bug reports and feature requests
-- **Discussions**: Community support and questions
-- **Examples**: Working code samples and patterns
+- **[MCP Specification](https://spec.modelcontextprotocol.io/)** - Official Model Context Protocol docs
+- **[FastMCP](https://github.com/jlowin/fastmcp)** - Underlying MCP framework
+- **[Examples](./examples/)** - Working code samples and patterns
+- **[Templates](./templates/)** - Project generation boilerplate
 
 ## Licence
 
-MIT Licence - see LICENSE file for complete details.
-
----
-
-**Transform any API into an AI-accessible service with MCP Base - the proven foundation for Model Context Protocol servers.**
+MIT
