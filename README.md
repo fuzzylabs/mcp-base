@@ -1,15 +1,17 @@
 # MCP Server Toolkit
 
-A framework for building Model Context Protocol (MCP) servers with pluggable data sources.
+A library for building Model Context Protocol (MCP) servers using common patterns extracted from real-world implementations.
 
 ## Overview
 
-The MCP Server Toolkit provides a standardized way to create MCP servers that can integrate with various external data sources through a plugin system. This allows AI assistants to access and query data from multiple platforms in a consistent manner.
+The MCP Server Toolkit provides reusable components and patterns to quickly build MCP servers for different APIs and data sources. It extracts common functionality like authentication, pagination, error handling, and server setup into a clean library that follows the same patterns used in successful MCP implementations.
 
 ## Features
 
-- **Plugin Architecture**: Easily extensible through plugins for different data sources
-- **Authentication**: Built-in API key authentication for secure access
+- **Library Architecture**: Reusable components and base classes for quick MCP server development
+- **API Client Abstraction**: Built-in HTTP client with authentication and error handling
+- **Common Patterns**: Pagination, search, filtering utilities extracted from real implementations
+- **Authentication**: Multiple auth strategies (Bearer tokens, API keys)
 - **HTTP & stdio modes**: Run as a web server or integrate directly with MCP clients
 - **Type Safety**: Built with Python type hints for better development experience
 - **Async Support**: Full async/await support for high performance
@@ -22,25 +24,53 @@ The MCP Server Toolkit provides a standardized way to create MCP servers that ca
 pip install mcp-server-toolkit
 ```
 
-### Basic Usage
+### Using the Built-in Capsule Server
 
 ```python
-from mcp_server_toolkit import MCPServer
-from mcp_server_toolkit.plugins import CapsulePlugin
+from mcp_server_toolkit import CapsuleMCPServer
 
-# Create server
-server = MCPServer(name="My MCP Server")
+# Create and run Capsule CRM server
+server = CapsuleMCPServer(
+    api_token="your-capsule-api-token",
+    mcp_api_key="your-mcp-api-key"
+)
 
-# Add plugins
-capsule_plugin = CapsulePlugin(config={
-    "api_token": "your-capsule-api-token"
-})
-server.add_plugin(capsule_plugin)
-
-# Run server
 server.run_server()  # HTTP mode
 # or
 server.run_stdio()   # stdio mode for MCP clients
+```
+
+### Building a Custom Server
+
+```python
+from mcp_server_toolkit import BaseMCPServer, BearerTokenAPIClient, paginated_endpoint
+
+class MyMCPServer(BaseMCPServer):
+    def __init__(self, api_token: str, mcp_api_key: str = None):
+        api_client = BearerTokenAPIClient(
+            base_url="https://api.example.com/v1",
+            api_token=api_token
+        )
+        
+        super().__init__(
+            name="My MCP Server",
+            api_client=api_client,
+            mcp_api_key=mcp_api_key
+        )
+    
+    def register_tools(self):
+        @self.mcp.tool
+        @paginated_endpoint()
+        async def list_items(page: int = 1, per_page: int = 50):
+            """List items with automatic pagination."""
+            return await self.api_client.get("items", params={
+                "page": page,
+                "per_page": per_page
+            })
+
+# Use your server
+server = MyMCPServer(api_token="your-token")
+server.run_server()
 ```
 
 ### Command Line Usage
@@ -53,15 +83,29 @@ mcp-server capsule http --host 0.0.0.0 --port 8000
 mcp-server capsule stdio
 ```
 
-## Available Plugins
+## Library Components
 
-### Capsule CRM Plugin
+### Base Classes
 
-The Capsule CRM plugin provides read-only access to Capsule CRM data.
+- **`BaseMCPServer`**: Abstract base class for MCP servers with common functionality
+- **`BaseAPIClient`**: HTTP client base class with authentication and error handling
+- **`BearerTokenAPIClient`**: API client for Bearer token authentication
+- **`APIKeyClient`**: API client for API key authentication
 
-**Configuration:**
-- `api_token`: Your Capsule API token (or set `CAPSULE_API_TOKEN` env var)
-- `base_url`: Capsule API base URL (optional, defaults to https://api.capsulecrm.com/api/v2)
+### Utilities
+
+- **`@paginated_endpoint`**: Decorator for handling pagination parameters
+- **`build_api_params()`**: Helper to build API parameter dictionaries
+- **`build_search_params()`**: Helper for search endpoint parameters
+- **`build_filter_query()`**: Helper for complex API filtering
+- **`MCPToolRegistry`**: Tool organization and categorization
+- **`require_env_var()`**: Environment variable validation with test support
+
+### Built-in Servers
+
+#### Capsule CRM Server
+
+Complete MCP server for Capsule CRM with 25+ tools.
 
 **Available Tools:**
 - `list_contacts`: Get paginated list of contacts
@@ -110,39 +154,68 @@ CAPSULE_BASE_URL=https://api.capsulecrm.com/api/v2
 
 ## Development
 
-### Creating a Custom Plugin
+### Building a Custom MCP Server
+
+The toolkit makes it easy to build new MCP servers by providing common patterns:
 
 ```python
-from mcp_server_toolkit import BasePlugin
-from fastmcp import FastMCP
-from typing import Dict, Any
+from mcp_server_toolkit import (
+    BaseMCPServer, 
+    BearerTokenAPIClient,
+    paginated_endpoint,
+    build_api_params
+)
 
-class MyCustomPlugin(BasePlugin):
-    def __init__(self, config: Dict[str, Any] = None):
-        super().__init__("My Custom Plugin", config)
-        # Plugin initialization
-    
-    async def initialize(self) -> None:
-        """Initialize plugin resources"""
-        pass
-    
-    async def cleanup(self) -> None:
-        """Clean up plugin resources"""
-        pass
-    
-    async def authenticate(self) -> bool:
-        """Authenticate with external service"""
-        return True
-    
-    def register_tools(self, mcp: FastMCP) -> None:
-        """Register tools with MCP server"""
+class GitHubMCPServer(BaseMCPServer):
+    def __init__(self, github_token: str, mcp_api_key: str = None):
+        api_client = BearerTokenAPIClient(
+            base_url="https://api.github.com",
+            api_token=github_token,
+            user_agent="my-github-mcp-server/1.0"
+        )
         
-        @mcp.tool
-        async def my_tool(param: str) -> Dict[str, Any]:
-            """My custom tool description"""
-            # Tool implementation
-            return {"result": f"Processed {param}"}
+        super().__init__(
+            name="GitHub MCP Server",
+            api_client=api_client,
+            mcp_api_key=mcp_api_key
+        )
+    
+    async def test_connection(self) -> bool:
+        """Test GitHub API connection."""
+        try:
+            await self.api_client.get("user")
+            return True
+        except:
+            return False
+    
+    def register_tools(self):
+        @self.mcp.tool
+        @paginated_endpoint()
+        async def list_repos(
+            page: int = 1, 
+            per_page: int = 30,
+            org: str = None
+        ):
+            """List repositories."""
+            endpoint = f"orgs/{org}/repos" if org else "user/repos"
+            params = build_api_params(page=page, per_page=per_page)
+            return await self.api_client.get(endpoint, params=params)
+        
+        @self.mcp.tool
+        async def get_repo(owner: str, repo: str):
+            """Get repository details."""
+            return await self.api_client.get(f"repos/{owner}/{repo}")
 ```
+
+### Common Patterns
+
+The toolkit includes utilities for common API patterns:
+
+- **Pagination**: Use `@paginated_endpoint()` decorator and `build_api_params()`
+- **Search**: Use `build_search_params()` for search endpoints
+- **Filtering**: Use `build_filter_query()` for complex filters
+- **Authentication**: Choose from `BearerTokenAPIClient` or `APIKeyClient`
+- **Error Handling**: Built into the base API client
 
 ### Running Tests
 
@@ -167,12 +240,36 @@ mypy mcp_server_toolkit/
 
 ## Architecture
 
-The toolkit is built around several key components:
+The toolkit provides a layered architecture for building MCP servers:
 
-- **MCPServer**: Main server class that manages plugins and handles requests
-- **BasePlugin**: Abstract base class for all plugins
-- **Authentication**: Middleware for API key authentication
-- **Plugin System**: Dynamic plugin loading and tool registration
+```
+┌─────────────────────────────────────┐
+│          Your MCP Server            │  ← Inherit from BaseMCPServer
+│  (e.g., GitHubMCPServer)           │
+├─────────────────────────────────────┤
+│         BaseMCPServer              │  ← Base class with common functionality
+│  • FastMCP integration            │
+│  • Authentication middleware       │
+│  • HTTP + stdio modes             │
+├─────────────────────────────────────┤
+│        API Client Layer            │  ← HTTP client abstraction
+│  • BearerTokenAPIClient           │
+│  • APIKeyClient                   │
+│  • Error handling                 │
+├─────────────────────────────────────┤
+│          Utilities                 │  ← Common patterns and helpers
+│  • Pagination decorator           │
+│  • Parameter builders             │
+│  • Environment helpers            │
+└─────────────────────────────────────┘
+```
+
+### Key Benefits
+
+- **Rapid Development**: Start with working patterns from real implementations
+- **Consistency**: All servers follow the same architecture
+- **Reusability**: Common code extracted into the library
+- **Maintainability**: Clear separation of concerns
 
 ## Contributing
 

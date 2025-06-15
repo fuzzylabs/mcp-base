@@ -3,27 +3,18 @@
 import argparse
 import os
 import sys
-from typing import Dict, Any
 
-from .server import MCPServer
-from .plugins import CapsulePlugin
+from .capsule_server import CapsuleMCPServer
 
 
-def create_capsule_server() -> MCPServer:
+def create_capsule_server() -> CapsuleMCPServer:
     """Create a Capsule CRM MCP server."""
-    server = MCPServer(
-        name="Capsule CRM MCP Server",
-        api_key=os.getenv("MCP_API_KEY"),
+    return CapsuleMCPServer(
+        base_url=os.getenv("CAPSULE_BASE_URL", "https://api.capsulecrm.com/api/v2"),
+        api_token=os.getenv("CAPSULE_API_TOKEN"),
+        mcp_api_key=os.getenv("MCP_API_KEY"),
         auth_required=True,
     )
-    
-    capsule_plugin = CapsulePlugin(config={
-        "base_url": os.getenv("CAPSULE_BASE_URL", "https://api.capsulecrm.com/api/v2"),
-        "api_token": os.getenv("CAPSULE_API_TOKEN"),
-    })
-    server.add_plugin(capsule_plugin)
-    
-    return server
 
 
 def main():

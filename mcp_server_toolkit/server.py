@@ -1,36 +1,39 @@
-"""Main MCP Server class for the toolkit."""
+"""Base MCP Server classes and utilities."""
 
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 from contextlib import asynccontextmanager
+from abc import ABC, abstractmethod
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import RedirectResponse
 from fastmcp import FastMCP
 
-from .base_plugin import BasePlugin
+from .api_client import BaseAPIClient
 
 
-class MCPServer:
-    """Main MCP Server that manages plugins and handles requests."""
+class BaseMCPServer(ABC):
+    """Base class for MCP servers with common functionality."""
     
     def __init__(
         self,
-        name: str = "MCP Server Toolkit",
-        api_key: Optional[str] = None,
+        name: str,
+        api_client: Optional[BaseAPIClient] = None,
+        mcp_api_key: Optional[str] = None,
         auth_required: bool = True,
     ):
         """Initialize the MCP Server.
         
         Args:
             name: Name of the MCP server
-            api_key: API key for authentication (can also be set via MCP_API_KEY env var)
-            auth_required: Whether authentication is required
+            api_client: API client for external service
+            mcp_api_key: API key for MCP authentication (can also be set via MCP_API_KEY env var)
+            auth_required: Whether MCP authentication is required
         """
         self.name = name
-        self.api_key = api_key or os.getenv("MCP_API_KEY")
-        self.auth_required = auth_required and self.api_key is not None
-        self.plugins: List[BasePlugin] = []
+        self.api_client = api_client
+        self.mcp_api_key = mcp_api_key or os.getenv("MCP_API_KEY")
+        self.auth_required = auth_required and self.mcp_api_key is not None
         
         # Create the MCP instance
         self.mcp = FastMCP(
@@ -41,25 +44,28 @@ class MCPServer:
         )
         
         self._app: Optional[FastAPI] = None
-    
-    def add_plugin(self, plugin: BasePlugin) -> None:
-        """Add a plugin to the server.
         
-        Args:
-            plugin: The plugin instance to add
-        """
-        self.plugins.append(plugin)
+        # Register tools during initialization
+        self.register_tools()
     
-    async def initialize_plugins(self) -> None:
-        """Initialize all registered plugins."""
-        for plugin in self.plugins:
-            await plugin.initialize()
-            plugin.register_tools(self.mcp)
+    @abstractmethod
+    def register_tools(self) -> None:
+        """Register MCP tools. Must be implemented by subclasses."""
+        pass
     
-    async def cleanup_plugins(self) -> None:
-        """Cleanup all registered plugins."""
-        for plugin in self.plugins:
-            await plugin.cleanup()
+    async def initialize(self) -> None:
+        """Initialize the server. Override in subclasses if needed."""
+        if self.api_client:
+            # Test API client connection if available
+            await self.test_connection()
+    
+    async def cleanup(self) -> None:
+        """Cleanup server resources. Override in subclasses if needed."""
+        pass
+    
+    async def test_connection(self) -> bool:
+        """Test connection to external API. Override in subclasses."""
+        return True
     
     async def authenticate_request(self, request: Request) -> None:
         """Authenticate requests to MCP endpoints using API key.
@@ -98,17 +104,17 @@ class MCPServer:
             )
         
         provided_key = auth_header[7:]
-        if provided_key != self.api_key:
+        if provided_key != self.mcp_api_key:
             raise HTTPException(status_code=401, detail="Invalid API key")
     
     @asynccontextmanager
     async def lifespan(self, app: FastAPI):
         """Lifespan context manager for FastAPI app."""
         # Startup
-        await self.initialize_plugins()
+        await self.initialize()
         yield
         # Shutdown
-        await self.cleanup_plugins()
+        await self.cleanup()
     
     def create_app(self) -> FastAPI:
         """Create and configure the FastAPI application.
@@ -148,7 +154,11 @@ class MCPServer:
         @app.get("/health")
         async def health_check():
             """Health check endpoint."""
-            return {"status": "healthy", "plugins": [plugin.name for plugin in self.plugins]}
+            return {
+                "status": "healthy",
+                "server": self.name,
+                "has_api_client": self.api_client is not None
+            }
         
         self._app = app
         return app

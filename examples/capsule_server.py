@@ -8,25 +8,18 @@ from pathlib import Path
 # Add the parent directory to the path so we can import the toolkit
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from mcp_server_toolkit import MCPServer
-from mcp_server_toolkit.plugins import CapsulePlugin
+from mcp_server_toolkit import CapsuleMCPServer
 
 
 def main():
     """Main entry point for the Capsule CRM MCP server."""
-    # Create the server
-    server = MCPServer(
-        name="Capsule CRM MCP Server",
-        api_key=os.getenv("MCP_API_KEY"),
+    # Create the Capsule MCP server
+    server = CapsuleMCPServer(
+        base_url=os.getenv("CAPSULE_BASE_URL", "https://api.capsulecrm.com/api/v2"),
+        api_token=os.getenv("CAPSULE_API_TOKEN"),
+        mcp_api_key=os.getenv("MCP_API_KEY"),
         auth_required=True,
     )
-    
-    # Create and add the Capsule plugin
-    capsule_plugin = CapsulePlugin(config={
-        "base_url": os.getenv("CAPSULE_BASE_URL", "https://api.capsulecrm.com/api/v2"),
-        "api_token": os.getenv("CAPSULE_API_TOKEN"),
-    })
-    server.add_plugin(capsule_plugin)
     
     # Check if we should run in stdio mode (for MCP clients)
     if len(sys.argv) > 1 and sys.argv[1] == "stdio":
